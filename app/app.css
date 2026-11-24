@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/* Dark mode is driven by a `.dark` class on <html> (see app/lib/theme.ts). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Design tokens ---------- */
+
+:root {
+  --surface: oklch(0.99 0.004 200);
+  --surface-muted: oklch(0.965 0.01 200);
+  --surface-raised: oklch(1 0 0);
+  --fg: oklch(0.22 0.03 230);
+  --fg-muted: oklch(0.46 0.03 230);
+  --border: oklch(0.9 0.015 210);
+  color-scheme: light;
+}
+
+.dark {
+  --surface: oklch(0.17 0.02 230);
+  --surface-muted: oklch(0.21 0.025 230);
+  --surface-raised: oklch(0.24 0.025 230);
+  --fg: oklch(0.96 0.01 210);
+  --fg-muted: oklch(0.75 0.02 220);
+  --border: oklch(0.32 0.03 230);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-raised: var(--surface-raised);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-border: var(--border);
+}
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50: oklch(0.97 0.02 200);
+  --color-brand-100: oklch(0.93 0.045 200);
+  --color-brand-200: oklch(0.87 0.08 200);
+  --color-brand-300: oklch(0.79 0.11 205);
+  --color-brand-400: oklch(0.7 0.13 210);
+  --color-brand-500: oklch(0.6 0.13 215);
+  --color-brand-600: oklch(0.52 0.12 220);
+  --color-brand-700: oklch(0.45 0.1 222);
+  --color-brand-800: oklch(0.38 0.08 225);
+  --color-brand-900: oklch(0.31 0.06 228);
+}
+
+/* ---------- Base ---------- */
+
+@layer base {
+  html {
+    scroll-padding-top: 5rem; /* keeps anchored headings clear of the sticky header */
+  }
+
+  body {
+    @apply bg-surface text-fg antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+/* ---------- Scroll-reveal (progressive enhancement, CSS only) ----------
+   Content is always present in the HTML; the animation only runs in
+   browsers that support scroll-driven animations and when the user has
+   not asked for reduced motion. */
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 20%;
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Prophylactic Antibiotics Study",
+  "short_name": "PAS",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }],
+  "theme_color": "#0e7490",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
