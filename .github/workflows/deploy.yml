@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Project sites are served from /<repository>/. With a custom domain set BASE_PATH to "/"
+      # and VITE_SITE_URL to the domain (e.g. https://www.example.org).
+      BASE_PATH: /${{ github.event.repository.name }}/
+      VITE_SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+
+      - name: Prepare static output for GitHub Pages
+        run: |
+          cd build/client
+          # Unknown URLs fall back to the SPA shell, which renders the localized 404 page.
+          mv index.html 404.html
+          # With a basename, pages are pre-rendered into ./<basename>/ while assets stay at the root:
+          # move them up so the artifact root maps to the site's base URL.
+          base="${BASE_PATH#/}"; base="${base%/}"
+          if [ -n "$base" ] && [ -d "$base" ]; then cp -R "$base"/. . && rm -rf "$base"; fi
+          touch .nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/client
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
